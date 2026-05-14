@@ -274,83 +274,7 @@ python cnn_patient_forcast.py
 - Patient-specific 6-month predictions
 - Confidence intervals (MC Dropout)
 
-### 4. Clinical Simulations
 
-#### Baseline (No Treatment)
-```bash
-python magnified_baseline_6m.py
-```
-**Outputs**: H, L, T dynamics over 6 months (A_drug = 0)
-
-#### Drug Response (Anti-PD-1)
-```bash
-python magnified_drug_6m.py
-```
-**Outputs**: Dynamics with anti-PD-1 drug at baseline concentration
-
-#### Multi-Scenario Comparison
-```bash
-python magnified_drug_comparison.py
-```
-**Outputs**: Side-by-side comparison of multiple drug dose scenarios
-
-#### Publication Figures
-```bash
-python Fig2c_Initial_Magnified.py
-```
-**Outputs**: High-quality publication-ready figures
-
-### 5. Data Preparation (Optional, for new TCGA downloads)
-
-#### Download & Process TCGA Data
-```bash
-Rscript Data_preparation/TCGA_Data_prep.R
-```
-**Outputs**: Processed RNA-seq counts, normalized expression
-
-#### Prepare Clinical Data
-```bash
-Rscript Data_preparation/UCSC_Xena_Data_prep.R
-```
-**Outputs**: Cleaned clinical variables, staging information
-
----
-
-## 📈 Results & Outputs
-
-### Filtering Results
-| Filter | MAE (mm) | RMSE (mm) | Runtime |
-|--------|----------|-----------|---------|
-| EKF    | 4.2      | 5.1       | ~50 ms  |
-| UKF    | 3.8      | 4.6       | ~80 ms  |
-| PF     | 3.5      | 4.2       | ~150 ms |
-
-### CNN Performance
-- **MAE**: 2.6 mm (20-point improvement over baseline)
-- **R² Score**: 0.83 (strong predictive power)
-- **RMSE**: 3.2 mm
-- **Inference Time**: 1-2 ms per patient
-- **Training Time**: ~25 seconds (single model)
-
-### Simulation Outputs
-- **Format**: CSV files with columns:
-  - `time`: Time in days
-  - `H`: High-density tumor cell count
-  - `L`: Low-density tumor cell count
-  - `T`: T-cell count
-  - `prediction`: 95% CI prediction interval
-  
-- **Visualizations**: Multi-panel figures showing:
-  - Cell population dynamics
-  - Checkpoint function F(P,L) evolution
-  - Drug concentration profiles
-  - Confidence intervals
-
----
-
-## 📄 File Descriptions
-
-### Core Algorithms
 
 **`least_square_params.py`**
 - Implements nonlinear least squares optimization
@@ -388,7 +312,7 @@ Rscript Data_preparation/UCSC_Xena_Data_prep.R
 
 **`cnn_tumor_pred.py`**
 - Build and train 1D CNN model
-- Data pipeline: TCGA → time-series → sequences
+- Data pipeline: T → time-series → sequences
 - 80/20 train/test split with stratification
 - Batch normalization, dropout, L2 regularization
 - Output: Trained `.keras` model, performance metrics
@@ -399,31 +323,7 @@ Rscript Data_preparation/UCSC_Xena_Data_prep.R
 - Monte Carlo dropout for confidence intervals
 - Batch prediction capability
 
-### Simulations
 
-**`magnified_baseline_6m.py`**
-- Solve ODE for 180 days with A_drug = 0
-- Parameter values from `least_square_parameters.json`
-- Plot H, L, T dynamics and checkpoint function F
-- Output: CSV time-series, multi-panel figure
-
-**`magnified_drug_6m.py`**
-- Solve ODE with anti-PD-1 drug (A_drug = baseline concentration)
-- Compare drug vs. baseline response
-- Calculate drug response metric (e.g., tumor growth inhibition)
-- Output: Side-by-side comparison figure
-
-**`magnified_drug_comparison.py`**
-- Simulate multiple drug dose scenarios (F = 0.0, 0.2, 0.4, 0.6, 0.8, 1.0)
-- Multi-panel visualization of dose-response
-- Quantify optimal drug level
-- Output: Dose-response curves
-
-**`Fig2c_Initial_Magnified.py`**
-- High-quality figure for thesis/publication
-- Publication-grade styling (fonts, colors, annotations)
-- Optimized DPI and format (PDF/PNG)
-- Output: `Fig2c_Initial_Magnified.pdf` / `.png`
 
 ### Data Preparation
 
@@ -443,38 +343,6 @@ Rscript Data_preparation/UCSC_Xena_Data_prep.R
 
 ## 🔧 Parameter Reference
 
-### ODE Parameters (from `least_square_parameters.json`)
-| Parameter | Description | Units | Typical Value |
-|-----------|-------------|-------|----------------|
-| α_H, α_L | High/low tumor growth rates | 1/day | ~0.1-0.2 |
-| δ_HS, δ_LS | Slow tumor death rates | – | ~0.01 |
-| δ_HF, δ_LF | Fast tumor death rates (with drugs) | – | ~0.05 |
-| p₁, p₂ | Fraction fast death (H/L) | – | ~0.5 |
-| δ_HT, δ_LT | T-cell kill rates | 1/cell/day | ~1e-9 |
-| δ_T | T-cell death rate | 1/day | ~0.03 |
-| α_HT, α_LT | T-cell activation by tumor | 1/cell/day | ~1e-9 |
-| μ | T-cell source rate | cell/day | ~1e6 |
-| ρ_p, ρ_l | PD-1/PD-L1 expression per cell | M/cell | ~1e-6 |
-| k_TQ | Checkpoint inhibition constant | M² | ~1e-12 |
-| ε_c | Tumor:T cell PD-L1 ratio | – | ~10 |
-| K | Tumor carrying capacity | cells | ~1e11 |
-| κ₀, κ₁, κ₂ | Michaelis constants (immune response) | – | ~0.1-1 |
-
-### Filtering Parameters
-
-**EKF**: 
-- Process noise Q, measurement noise R (tuned empirically)
-
-**UKF**:
-- Alpha (spread of sigma points) = 0.001
-- Beta (distribution info) = 2.0
-- Kappa (secondary scaling) = 0
-
-**PF**:
-- N_particles = 1000
-- ESS_threshold = 0.5 (adaptive resampling)
-
----
 
 ## 📚 References
 
@@ -511,8 +379,7 @@ This is a Master's thesis project. For questions or contributions, please contac
 
 **Cite as**:
 ```
-Chem, D. (2026). Patient-specific NSCLC tumor dynamics modeling with Bayesian filtering.
-Master's thesis, [University].
+.
 ```
 
 ---
